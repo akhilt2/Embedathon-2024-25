@@ -1,56 +1,50 @@
 #include <Arduino.h>
 
-// Define the number of rows and columns
 #define ROWS 8
 #define COLS 8
 
-// Define GPIO pins for rows and columns
-int rowPins[ROWS] = {2, 3, 4, 5, 6, 7, 8, 9};    // GPIO pins for rows
-int colPins[COLS] = {10, 11, 12, 13, 14, 15, 16, 17}; // GPIO pins for columns
+int rowPins[ROWS] = {2, 4, 35, 12, 5, 18, 19, 21};
+int colPins[COLS] = {22, 23, 25, 26, 27, 32, 33, 34};
 
-// Define the bitmaps for the letters in "LAKHTARUS"
 byte letters[][8] = {
-  {0b10000000, 0b10000000, 0b10000000, 0b10000000, 0b10000000, 0b10000000, 0b11111111, 0b00000000}, // L
-  {0b01111110, 0b10000001, 0b10000001, 0b11111111, 0b10000001, 0b10000001, 0b10000001, 0b00000000}, // A
-  {0b10000001, 0b10000001, 0b10010001, 0b10101001, 0b11000101, 0b10000011, 0b10000001, 0b00000000}, // K
-  {0b11111111, 0b10000001, 0b10000001, 0b11111111, 0b10000001, 0b10000001, 0b11111111, 0b00000000}, // H
-  {0b11111111, 0b00010000, 0b00010000, 0b00010000, 0b00010000, 0b00010000, 0b11111111, 0b00000000}, // T
-  {0b01111110, 0b10000001, 0b10000001, 0b11111111, 0b10000001, 0b10000001, 0b01111110, 0b00000000}, // A
-  {0b11111110, 0b10000010, 0b10000010, 0b11111110, 0b10010010, 0b10001010, 0b10000110, 0b00000000}, // R
-  {0b11111111, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b11111111, 0b00000000}, // U
-  {0b01111110, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b10000001, 0b01111110, 0b00000000}  // S
+  {0b00000001, 0b00000001, 0b00000001, 0b00000001, 0b00000001, 0b00000001, 0b11111111, 0b00000000}, // L
+  {0b00111110, 0b00100010, 0b00100010, 0b11111100, 0b00100010, 0b00100010, 0b00100010, 0b00100010}, // A
+  {0b00100010, 0b00010010, 0b00001010, 0b00000110, 0b00001010, 0b00010010, 0b00100010, 0b00000000}, // K
+  {0b00100010, 0b00100010, 0b00100010, 0b11111110, 0b00100010, 0b00100010, 0b00100010, 0b00000000}, // H
+  {0b11111111, 0b00000100, 0b00000100, 0b00000100, 0b00000100, 0b00000100, 0b00000100, 0b00000100}, // T
+  {0b00111110, 0b00100010, 0b00100010, 0b11111100, 0b00100010, 0b00100010, 0b00100010, 0b00100010}, // A
+  {0b00111111, 0b00100001, 0b00100001, 0b00111111, 0b00000101, 0b00001001, 0b00010001, 0b00100001}, // R
+  {0b00100010, 0b00100010, 0b00100010, 0b00100010, 0b00100010, 0b00100010, 0b00111110, 0b00000000}, // U
+  {0b00111111, 0b00000001, 0b00000001, 0b00111111, 0b00100000, 0b00100000, 0b00111111, 0b00000000}  // S
 };
 
-// Function to initialize the row and column pins
 void setupPins() {
   for (int i = 0; i < ROWS; i++) {
     pinMode(rowPins[i], OUTPUT);
-    digitalWrite(rowPins[i], HIGH); // Turn rows OFF initially
+    digitalWrite(rowPins[i], LOW);
   }
 
   for (int i = 0; i < COLS; i++) {
     pinMode(colPins[i], OUTPUT);
-    digitalWrite(colPins[i], LOW); // Turn columns OFF initially
+    digitalWrite(colPins[i], HIGH);
   }
 }
 
-// Function to display a character on the LED matrix
 void displayChar(byte character[8]) {
   for (int row = 0; row < ROWS; row++) {
-    digitalWrite(rowPins[row], LOW); // Activate the current row
+    digitalWrite(rowPins[row], HIGH);
     for (int col = 0; col < COLS; col++) {
-      digitalWrite(colPins[col], !(character[row] & (1 << col))); // Set column state
+      digitalWrite(colPins[col], (character[row] & (1 << col)) ? LOW : HIGH);
     }
-    delay(2); // Short delay to stabilize LEDs
-    digitalWrite(rowPins[row], HIGH); // Deactivate the current row
+    delay(2);
+    digitalWrite(rowPins[row], LOW);
   }
 }
 
-// Function to display the message letter-by-letter
 void displayMessage() {
-  for (int i = 0; i < 9; i++) { // Loop through 9 letters in "LAKHTARUS"
+  for (int i = 0; i < 9; i++) {
     unsigned long startTime = millis();
-    while (millis() - startTime < 500) { // Display each letter for 500ms
+    while (millis() - startTime < 1000) {
       displayChar(letters[i]);
     }
   }
@@ -61,5 +55,7 @@ void setup() {
 }
 
 void loop() {
-  displayMessage(); // Display the message continuously
+  displayMessage();
 }
+
+// Row number 3 and Column number 7 and 8 was not working in the 8x8 LED matrix.
